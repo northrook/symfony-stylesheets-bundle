@@ -1,5 +1,5 @@
 {
-  "name": "northrook/symfony-core-bundle",
+  "name": "northrook/symfony-stylesheets-bundle",
   "description": "A CSS compiler and dynamic stylesheet generator for Symfony.",
   "type": "symfony-bundle",
   "license": "MIT",
