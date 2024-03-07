@@ -1,0 +1,39 @@
+{
+  "name": "northrook/symfony-core-bundle",
+  "description": "A CSS compiler and dynamic stylesheet generator for Symfony.",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Northrook\\Symfony\\Stylesheets\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Northrook\\Symfony\\Stylesheets\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Martin",
+      "email": "mn@northrook.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=8.1",
+    "symfony/config": "^7.0",
+    "symfony/dependency-injection": "^7.0",
+    "symfony/deprecation-contracts": "^3.0",
+    "symfony/http-kernel": "^7.0",
+    "northrook/stylesheets": "dev-main",
+    "northrook/logger": "dev-main",
+    "northrook/types": "dev-main"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest",
+    "symfony/framework-bundle": "^7.0",
+    "symfony/phpunit-bridge": "^7.0",
+    "symfony/stopwatch": "7"
+  }
+}
