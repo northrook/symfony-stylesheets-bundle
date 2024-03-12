@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  * @link    https://github.com/northrook Documentation
  * @todo    Update URL to documentation : root of symfony-stylesheets-bundle
  */
-final class SymfonyCoreBundle extends Bundle
+final class SymfonyStylesheetsBundle extends Bundle
 {
 
 	public function getPath() : string {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Northrook\Symfony\Stylesheets\Stylesheets;
+namespace Northrook\Symfony\Stylesheets;
 
 use Northrook\Types\Path;
 use Northrook\Types\Type\Properties;
@@ -14,7 +14,7 @@ use Northrook\Types\Type\Properties;
  */
 final class Options extends Properties
 {
-	public function getOutputPath() : Path {
-		return $this->outputDirectory->add( $this->fileName );
-	}
+    public function getOutputPath() : Path {
+        return $this->outputDirectory->add( $this->fileName );
+    }
 }

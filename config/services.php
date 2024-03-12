@@ -2,7 +2,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Northrook\Symfony\Stylesheets\StylesheetGenerationService;
+use Northrook\Symfony\Stylesheets\Services\StylesheetGenerationService;
 
 return static function ( ContainerConfigurator $container ) : void {
 

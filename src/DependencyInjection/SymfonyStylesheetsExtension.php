@@ -1,6 +1,6 @@
 <?php
 
-namespace Northrook\Symfony\Core\DependencyInjection;
+namespace Northrook\Symfony\Stylesheets\DependencyInjection;
 
 use Exception;
 use Symfony\Component\Config\FileLocator;

@@ -7,7 +7,7 @@ use Northrook\Stylesheets\ColorPalette;
 use Northrook\Stylesheets\DynamicRules;
 use Northrook\Stylesheets\Stylesheet;
 use Northrook\Support\Str;
-use Northrook\Symfony\Stylesheets\Stylesheets\Options;
+use Northrook\Symfony\Stylesheets\Options;
 use Northrook\Types\Path;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
