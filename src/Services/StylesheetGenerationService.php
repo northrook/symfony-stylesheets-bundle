@@ -10,6 +10,7 @@ use Northrook\Support\Str;
 use Northrook\Symfony\Stylesheets\Options;
 use Northrook\Types\Path;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -41,7 +42,7 @@ class StylesheetGenerationService
 
     public function __construct(
         private ParameterBagInterface $parameterBag,
-        private ?Session              $session = null,
+        private RequestStack          $requestStack,
         private ?Logger               $logger = null,
         private ?Stopwatch            $stopwatch = null,
     ) {

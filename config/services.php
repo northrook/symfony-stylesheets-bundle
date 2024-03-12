@@ -22,7 +22,7 @@ return static function ( ContainerConfigurator $container ) : void {
               ->args(
                   [
                       service( 'parameter_bag' ),
-                      service( 'session' )->nullOnInvalid(),
+                      service( 'request_stack' ),
                       service( 'logger' )->nullOnInvalid(),
                       service( 'debug.stopwatch' )->nullOnInvalid(),
                   ],
