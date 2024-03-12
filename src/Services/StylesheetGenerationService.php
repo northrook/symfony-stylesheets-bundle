@@ -18,134 +18,109 @@ class StylesheetGenerationService
 {
 
 
-	// @todo Move this to config, as primary only.
-	// When just provided a primary color, autogenerate a light and dark baseline color
-	private const PALETTE_FILE = [
-		'baseline' => '222,9,10',
-		'primary'  => '222,100,50',
-	];
+    // @todo Move this to config, as primary only.
+    // When just provided a primary color, autogenerate a light and dark baseline color
+    private const PALETTE_FILE = [
+        'baseline' => '222,9,10',
+        'primary'  => '222,100,50',
+    ];
 
 
-	public Stylesheet   $generator;
-	public ColorPalette $palette;
-	public Options      $options;
+    public readonly Stylesheet $generator;
+    public readonly Options    $options;
+    public ColorPalette        $palette;
 
 
-	/**
-	 * @var Path[]
-	 */
-	private array $templateDirectories = [];
+    /**
+     * @var Path[]
+     */
+    private array $templateDirectories = [];
 
-	/** @todo Use {@see \Northrook\Types\Type\Record} when refactoring northrook/stylesheets. */
-	private array $includedStylesheets = [];
+    /** @todo Use {@see \Northrook\Types\Type\Record} when refactoring northrook/stylesheets. */
+    private array $includedStylesheets = [];
 
-	private Path   $rootDirectory;
-	private Path   $outputDirectory;
-	private string $fileName;
+    public function __construct(
+        private ParameterBagInterface $parameterBag,
+        private ?Session              $session = null,
+        private ?Logger               $logger = null,
+        private ?Stopwatch            $stopwatch = null,
+    ) {
+        $this->options = new Options(
+            [
+                'rootDirectory'   => $this->parameterBag->get( 'dir.root' ),
+                'outputDirectory' => $this->parameterBag->get( 'dir.stylesheets.output' ),
+                'fileName'        => 'styles.css',
+            ]
+        );
 
-	public function __construct(
-		private ParameterBagInterface $parameterBag,
-		private ?Session              $session = null,
-		private ?Logger               $logger = null,
-		private ?Stopwatch            $stopwatch = null,
-	) {
-		$this->options         = new Options(
-			[
-				'rootDirectory'   => $this->parameterBag->get( 'dir.root' ),
-				'outputDirectory' => $this->parameterBag->get( 'dir.stylesheets.output' ),
-				'fileName'        => 'styles.css',
-			]
-		);
-		$this->rootDirectory   = Path::type( $this->parameterBag->get( 'dir.root' ) );
-		$this->outputDirectory = Path::type( $this->parameterBag->get( 'dir.stylesheets.output' ) );
+        $this->palette = new ColorPalette( self::PALETTE_FILE );
+        dump( $this );
+    }
 
-		dd( $this );
-	}
+    public function save( ?string $path = null ) : void {
 
-	public function save( ?string $path = null ) : void {
+        $path = $this->options->getOutputPath();
 
-		$path = $this->options->getOutputPath();
+        if ( !$path->isValid ) {
+            $this->logger->error(
+                'The output path is invalid. Stylesheet generation {status}.',
+                [
+                    'status'   => 'halted',
+                    'path'     => $path,
+                    'pathName' => $path->value,
+                ],
+            );
+            return;
+        }
 
-		if ( !$path->isValid ) {
-			$this->logger->error(
-				'The output path is invalid. Stylesheet generation {status}.',
-				[
-					'status'   => 'halted',
-					'path'     => $path,
-					'pathName' => $path->value,
-				],
-			);
-			return;
-		}
+        $this->generator = new Stylesheet(
+            palette : $this->palette ?? new ColorPalette( self::PALETTE_FILE ),
+            force   : $this->options->forceRegeneration
+        );
 
-		$this->generator = new Stylesheet(
-			palette : $this->palette ?? new ColorPalette( self::PALETTE_FILE ),
-			force   : $this->options->forceRegeneration
-		);
+        foreach ( $this->includedStylesheets as $index => $stylesheet ) {
+            if ( substr_count( $stylesheet, '.' ) > 1 ) {
+                $parent = strchr( $stylesheet, '.', true ) . '.css';
+                $parent = new Path( $parent );
+                if ( $parent->isValid ) {
+                    $this->generator->addStylesheets( $parent );
+                }
+            }
+            $stylesheet = new Path( $stylesheet );
+            if ( $stylesheet->isValid ) {
+                $this->generator->addStylesheets( $stylesheet );
+            }
+        }
 
-		foreach ( $this->includedStylesheets as $index => $stylesheet ) {
-			if ( substr_count( $stylesheet, '.' ) > 1 ) {
-				$parent = strchr( $stylesheet, '.', true ) . '.css';
-				$parent = Path::type( $parent );
-				if ( $parent->isValid ) {
-					$this->generator->addStylesheets( $parent );
-				}
-			}
-			$stylesheet = Path::type( $stylesheet );
-			if ( $stylesheet->isValid ) {
-				$this->generator->addStylesheets( $stylesheet );
-			}
-		}
+        if ( empty( $this->templateDirectories ) ) {
+            $this->templateDirectories[] = $this->options->rootDirectory . 'templates';
+        }
 
-		if ( empty( $this->templateDirectories ) ) {
-			$this->templateDirectories[] = $this->rootDirectory . 'templates';
-		}
+        $this->generator->dynamicRules = new DynamicRules(
+            $this->options->rootDirectory,
+            $this->templateDirectories
+        );
 
-		$this->generator->dynamicRules = new DynamicRules(
-			$this->options->rootDirectory,
-			$this->templateDirectories
-		);
+        $this->generator->save( $path );
 
-		$this->generator->save( $path );
+    }
 
-	}
+    public function setPalette( ColorPalette $palette ) : self {
+        $this->palette = $palette;
+        return $this;
+    }
 
-	public function setRootDirectory( string $rootDirectory ) : self {
-		$this->rootDirectory = Path::type( $rootDirectory );
-		return $this;
-	}
+    public function includeStylesheets( string | array $path ) : self {
+        $this->includedStylesheets = array_merge( $this->includedStylesheets, (array) $path );
+        return $this;
+    }
 
-	public function setOutputDirectory( string $outputDirectory, ?string $fileName = null ) : self {
-		$this->outputDirectory = Path::type( $outputDirectory );
-		if ( null !== $fileName ) {
-			return $this->setFileName(
-				$fileName ?: $this->parameterBag->get( '' ),
-			);
-		}
-		return $this;
-	}
-
-	public function setFileName( string $fileName ) : self {
-		$this->fileName = Str::end( $fileName, '.css' );
-		return $this;
-	}
-
-	public function setPalette( ColorPalette $palette ) : self {
-		$this->palette = $palette;
-		return $this;
-	}
-
-	public function includeStylesheets( string | array $path ) : self {
-		$this->includedStylesheets = array_merge( $this->includedStylesheets, (array) $path );
-		return $this;
-	}
-
-	public function scanTemplateFiles( string ...$in ) : self {
-		foreach ( $in as $path ) {
-			$this->templateDirectories[] = Path::type( $path );
-		}
-		return $this;
-	}
+    public function scanTemplateFiles( string ...$in ) : self {
+        foreach ( $in as $path ) {
+            $this->templateDirectories[] = new Path( $path );
+        }
+        return $this;
+    }
 
 
 }

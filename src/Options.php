@@ -6,14 +6,16 @@ use Northrook\Types\Path;
 use Northrook\Types\Type\Properties;
 
 /**
- * @property bool   $forceRegeneration
- * @property bool   $saveOnResponse
- * @property Path   $rootDirectory
- * @property Path   $outputDirectory
- * @property string $fileName
  */
 final class Options extends Properties
 {
+
+    public bool          $forceRegeneration = false;
+    public SaveCondition $save              = SaveCondition::Manual;
+    public Path          $rootDirectory;
+    public Path          $outputDirectory;
+    public string        $fileName;
+
     public function getOutputPath() : Path {
         return $this->outputDirectory->add( $this->fileName );
     }
